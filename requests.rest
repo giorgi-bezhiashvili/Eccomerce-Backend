@@ -1,0 +1,10 @@
+POST http://127.0.0.1:3000/users
+Content-Type: application/json
+
+{
+    "id": "101",
+    "userN": "John Doe1",
+    "password": "fyhu",
+    "token": "user_token",
+    "basket": []
+}
