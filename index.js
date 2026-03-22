@@ -2,14 +2,21 @@ const express = require("express");
 const fs = require("fs");
 const app = express();
 const bcrypt = require("bcrypt");
-require('./login.js');
+const path = require("path");
+
 app.use(express.json());
 
 const DATA_FILE = "./data.json";
 
-// Helper to read data (prevents the 'require' cache issue)
+
 const getFileData = () => {
     const data = fs.readFileSync(DATA_FILE, "utf8");
+    return JSON.parse(data);
+};
+const getProductsFileData = () => {
+    
+    const filePath = path.join(__dirname, "productdata.json");
+    const data = fs.readFileSync(filePath, "utf8");
     return JSON.parse(data);
 };
 
@@ -22,11 +29,11 @@ app.post("/users", async (req, res) => {
     try {
         const users = getFileData();
 
-        // 1. CHECK FOR DUPLICATES (Very important!)
+        // 1. CHECK FOR DUPLICATES 
         const userExists = users.find(u => u.userN === req.body.userN);
         if (userExists) return res.status(400).send("User already exists");
 
-        // 2. HASH THE PASSWORD
+      
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(req.body.password, salt);
 
@@ -56,7 +63,7 @@ app.post("/users", async (req, res) => {
 //login
 
 app.post('/users/login', async (req, res) => {
-    // FIX: You must load the users from the file first!
+    
     const users = getFileData(); 
     
     const user = users.find(u => u.userN === req.body.userN);
@@ -77,7 +84,7 @@ app.post('/users/login', async (req, res) => {
 //Basket routes
 app.post("/users/:id/basket", (req, res) => {
     const users = getFileData();
-    // Use findIndex so we can update the array directly
+   
     const userIndex = users.findIndex(u => u.id === req.params.id);
     
     if (userIndex === -1) return res.status(404).send("User not found");
@@ -101,5 +108,21 @@ app.get("/users/:id/basket", (req, res) => {
     if (!user) return res.status(404).send("User not found");
     
     res.json(user.basket || []);
+});
+app.delete("/users/:id/basket", (req, res) => {
+    const users = getFileData();
+    const userIndex = users.findIndex(u => u.id === req.params.id);
+    
+    if (userIndex === -1) return res.status(404).send("User not found");
+    
+    users[userIndex].basket = []; // Clear the basket
+    
+    fs.writeFileSync(DATA_FILE, JSON.stringify(users, null, 2));
+    
+    res.send("Basket cleared");
+});
+app.get("/products", (req, res) => {
+    const products = getProductsFileData();
+    res.json(products);
 });
 app.listen(3000, () => console.log(`Server spinning on port 3000`));
