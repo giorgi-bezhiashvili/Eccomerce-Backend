@@ -94,4 +94,12 @@ app.post("/users/:id/basket", (req, res) => {
     
     res.json(users[userIndex].basket);
 });
+app.get("/users/:id/basket", (req, res) => {
+    const users = getFileData();
+    const user = users.find(u => u.id === req.params.id);
+    
+    if (!user) return res.status(404).send("User not found");
+    
+    res.json(user.basket || []);
+});
 app.listen(3000, () => console.log(`Server spinning on port 3000`));
