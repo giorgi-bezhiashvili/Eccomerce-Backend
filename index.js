@@ -1,77 +1,95 @@
 const express = require("express");
 const fs = require("fs");
-const app = express();
-const bcrypt = require("bcrypt");
 const path = require("path");
+const bcrypt = require("bcrypt");
 
+const app = express();
+const DATA_FILE = "./data.json";
+const PRODUCTS_FILE = path.join(__dirname, "productdata.json");
+
+// 1. MIDDLEWARE (Must be before routes)
 app.use(express.json());
 
-const DATA_FILE = "./data.json";
-
-
+// --- HELPERS ---
 const getFileData = () => {
-    const data = fs.readFileSync(DATA_FILE, "utf8");
-    return JSON.parse(data);
-};
-const getProductsFileData = () => {
-    
-    const filePath = path.join(__dirname, "productdata.json");
-    const data = fs.readFileSync(filePath, "utf8");
-    return JSON.parse(data);
+    try {
+        const data = fs.readFileSync(DATA_FILE, "utf8");
+        return JSON.parse(data);
+    } catch (err) {
+        return []; // Return empty array if file doesn't exist yet
+    }
 };
 
+const saveFileData = (data) => {
+    fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
+};
+
+const getProductsFileData = () => {
+    try {
+        const data = fs.readFileSync(PRODUCTS_FILE, "utf8");
+        return JSON.parse(data);
+    } catch (err) {
+        return [];
+    }
+};
+
+// --- ROUTES ---
+
+// Get all users (for testing)
 app.get("/users", (req, res) => {
-    const users = getFileData();
-    res.json(users);
+    res.json(getFileData());
 });
 
+// Register User
 app.post("/users", async (req, res) => {
     try {
+        const { userN, password, id, token, basket } = req.body;
+        
+        // Validation: Ensure password exists in request
+        if (!userN || !password) {
+            return res.status(400).send("Username and password are required");
+        }
+
         const users = getFileData();
 
-        // 1. CHECK FOR DUPLICATES 
-        const userExists = users.find(u => u.userN === req.body.userN);
-        if (userExists) return res.status(400).send("User already exists");
+        // Check for duplicates
+        if (users.find(u => u.userN === userN)) {
+            return res.status(400).send("User already exists");
+        }
 
-      
         const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(req.body.password, salt);
+        const hashedPassword = await bcrypt.hash(password, salt);
 
-        // 3. CREATE THE OBJECT ONCE
         const newUser = {
-            id: req.body.id || Date.now().toString(), // Fallback ID if none provided
-            userN: req.body.userN,
-            password: hashedPassword, // Save only the hash
-            token: req.body.token,
-            basket: req.body.basket || []
+            id: id || Date.now().toString(),
+            userN: userN,
+            password: hashedPassword,
+            token: token || "",
+            basket: basket || []
         };
 
-        // 4. SAVE
         users.push(newUser);
-        fs.writeFileSync(DATA_FILE, JSON.stringify(users, null, 2));
+        saveFileData(users);
 
-        // 5. RESPOND SAFELY
-        const { password, ...userResponse } = newUser; 
-        console.log(`User ${userResponse.userN} added!`);
+        const { password: _, ...userResponse } = newUser;
         res.status(201).json(userResponse);
-
     } catch (err) {
-        console.error("Error:", err);
+        console.error(err);
         res.status(500).send("Server Error");
     }
 });
-//login
 
+// Login
 app.post('/users/login', async (req, res) => {
-    
-    const users = getFileData(); 
-    
-    const user = users.find(u => u.userN === req.body.userN);
-    
+    const { userN, password } = req.body;
+    const users = getFileData();
+    const user = users.find(u => u.userN === userN);
+
     if (!user) return res.status(400).send("Invalid username or password");
-    
+
     try {
-        if (await bcrypt.compare(req.body.password, user.password)) {
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (isMatch) {
             res.send("Login successful");
         } else {
             res.status(400).send("Invalid username or password");
@@ -81,48 +99,65 @@ app.post('/users/login', async (req, res) => {
     }
 });
 
-//Basket routes
-app.post("/users/:id/basket", (req, res) => {
-    const users = getFileData();
-   
-    const userIndex = users.findIndex(u => u.id === req.params.id);
-    
-    if (userIndex === -1) return res.status(404).send("User not found");
-    
-    // Ensure the basket exists as an array
-    if (!users[userIndex].basket) {
-        users[userIndex].basket = [];
-    }
+// --- BASKET ROUTES ---
 
-    // Push the whole object sent in the request
-    users[userIndex].basket.push(req.body); 
-    
-    fs.writeFileSync(DATA_FILE, JSON.stringify(users, null, 2));
-    
-    res.json(users[userIndex].basket);
-});
+// Get user basket
 app.get("/users/:id/basket", (req, res) => {
     const users = getFileData();
     const user = users.find(u => u.id === req.params.id);
-    
     if (!user) return res.status(404).send("User not found");
-    
     res.json(user.basket || []);
 });
+
+// Add to basket
+app.post("/users/:id/basket", (req, res) => {
+    const users = getFileData();
+    const userIndex = users.findIndex(u => u.id === req.params.id);
+
+    if (userIndex === -1) return res.status(404).send("User not found");
+
+    if (!users[userIndex].basket) users[userIndex].basket = [];
+    
+    users[userIndex].basket.push(req.body); 
+    saveFileData(users);
+    res.json(users[userIndex].basket);
+});
+
+// Remove specific item from basket
+app.delete("/users/:userId/basket/:productId", (req, res) => {
+    const users = getFileData();
+    const { userId, productId } = req.params;
+
+    const userIndex = users.findIndex(u => u.id === userId);
+    if (userIndex === -1) return res.status(404).send("User not found");
+
+    const initialLength = users[userIndex].basket.length;
+    users[userIndex].basket = users[userIndex].basket.filter(item => item.id !== productId);
+
+    if (users[userIndex].basket.length === initialLength) {
+        return res.status(404).send("Product not found in basket");
+    }
+
+    saveFileData(users);
+    res.json(users[userIndex].basket);
+});
+
+// Clear entire basket
 app.delete("/users/:id/basket", (req, res) => {
     const users = getFileData();
     const userIndex = users.findIndex(u => u.id === req.params.id);
-    
+
     if (userIndex === -1) return res.status(404).send("User not found");
-    
-    users[userIndex].basket = []; // Clear the basket
-    
-    fs.writeFileSync(DATA_FILE, JSON.stringify(users, null, 2));
-    
+
+    users[userIndex].basket = [];
+    saveFileData(users);
     res.send("Basket cleared");
 });
+
+// --- PRODUCT ROUTES ---
 app.get("/products", (req, res) => {
     const products = getProductsFileData();
     res.json(products);
 });
+
 app.listen(3000, () => console.log(`Server spinning on port 3000`));
