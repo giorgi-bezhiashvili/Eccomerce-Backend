@@ -12,11 +12,19 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "devStart" : "nodemon index.js",
+    "devStart": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/giorgi-bezhiashvili/Eccomerce-Backend.git"
+  },
+  "bugs": {
+    "url": "https://github.com/giorgi-bezhiashvili/Eccomerce-Backend/issues"
+  },
+  "homepage": "https://github.com/giorgi-bezhiashvili/Eccomerce-Backend#readme",
   "description": ""
 }

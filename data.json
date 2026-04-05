@@ -1,15 +1,9 @@
 [
   {
-    "id": "1",
-    "userN": "xinkali",
-    "password": "$2b$10$dHG5LWfXydL8fP2STDZNseA.qjwYBtj37Km9TBYIN5K/Tjepc87a.",
-    "token": "fc794bcwbc",
-    "basket": [
-      {
-        "id": "p1012",
-        "name": "Khinkali Dumplings",
-        "price": 10
-      }
-    ]
+    "id": "1775384229894",
+    "userN": "john_doe",
+    "password": "$2b$10$vZWjxOU6QX4B7PZIYrHqMuJo6i/fj4E7olb2DuLBvBg2mxdRBrdt6",
+    "token": "",
+    "basket": []
   }
 ]

@@ -1,44 +1,41 @@
-### 1. Register a New User
+### Register a new user
 POST http://localhost:3000/users
 Content-Type: application/json
 
 {
-    "id": "1",
-    "userN": "xinkali",
-    "password": "assaka",
-    "token": "fc794bcwbc",
-    "basket": []
+    "userN": "john_doe",
+    "password": "secretpassword123"
 }
 
-### 2. Login (Should return "Login successful")
+### Login
 POST http://localhost:3000/users/login
 Content-Type: application/json
 
 {
-    "userN": "xinkali",
-    "password": "assaka"
+    "userN": "john_doe",
+    "password": "secretpassword123"
 }
-
-### 3. Get All Products
+### Get all products
 GET http://localhost:3000/products
+GET http://localhost:3000/users/1775384003686/basket
 
-### 4. Add an Item to the Basket
-# Replace "1" with the user's ID if you changed it
-POST http://localhost:3000/users/1/basket
+POST http://localhost:3000/users/1775384003686/basket
 Content-Type: application/json
 
 {
-    "id": "p1012",
-    "name": "Khinkali Dumplings",
-    "price": 10
+    "id": "prod_001",
+    "name": "Mechanical Keyboard",
+    "price": 89.99,
+    "quantity": 1
 }
 
-### 5. View User's Basket
-GET http://localhost:3000/users/1/basket
+PATCH http://localhost:3000/users/1775384003686/basket/prod_001
+Content-Type: application/json
 
-### 6. Delete a Specific Item from Basket
-# This removes the product with ID "p101" from user "1"
-DELETE http://localhost:3000/users/1/basket/p101
+{
+    "quantity": 5
+}
 
-### 7. Clear Entire Basket
-DELETE http://localhost:3000/users/1/basket
+DELETE http://localhost:3000/users/1775384003686/basket/prod_001
+
+DELETE http://localhost:3000/users/1775384003686/basket
