@@ -15,11 +15,12 @@ Content-Type: application/json
     "userN": "john_doe",
     "password": "secretpassword123"
 }
-### Get all products
-GET http://localhost:3000/products
-GET http://localhost:3000/users/1775384003686/basket
 
-POST http://localhost:3000/users/1775384003686/basket
+### Get all products
+GET http://localhost:3000/product
+
+### Add item to basket
+POST http://localhost:3000/users/1775726012616/basket
 Content-Type: application/json
 
 {
@@ -29,13 +30,27 @@ Content-Type: application/json
     "quantity": 1
 }
 
-PATCH http://localhost:3000/users/1775384003686/basket/prod_001
+### Get basket
+GET http://localhost:3000/users/1775726012616/basket
+
+### Update basket item quantity (user 1775726012616)
+PATCH http://localhost:3000/users/1775726012616/basket/prod_001
 Content-Type: application/json
 
 {
     "quantity": 5
 }
 
-DELETE http://localhost:3000/users/1775384003686/basket/prod_001
+### Update basket item quantity (user 1775726012616)
+PATCH http://localhost:3000/users/1775726012616/basket/prod_001
+Content-Type: application/json
 
-DELETE http://localhost:3000/users/1775384003686/basket
+{
+    "quantity": 5
+}
+
+### Delete basket item (user 1775726012616)
+DELETE http://localhost:3000/users/1775726012616/basket/prod_001
+
+### Clear entire basket (user 1775726012616)
+DELETE http://localhost:3000/users/1775726012616/basket

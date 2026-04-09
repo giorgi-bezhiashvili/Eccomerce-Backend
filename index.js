@@ -7,7 +7,7 @@ const app = express();
 const DATA_FILE = "./data.json";
 const PRODUCTS_FILE = path.join(__dirname, "productdata.json");
 
-// 1. MIDDLEWARE (Must be before routes)
+// 1. MIDDLEWARE
 app.use(express.json());
 
 // --- HELPERS ---
@@ -16,7 +16,7 @@ const getFileData = () => {
     const data = fs.readFileSync(DATA_FILE, "utf8");
     return JSON.parse(data);
   } catch (err) {
-    return []; // Return empty array if file doesn't exist yet
+    return [];
   }
 };
 
@@ -32,8 +32,6 @@ const getProductsFileData = () => {
     return [];
   }
 };
-
-// --- ROUTES ---
 
 // Register User
 app.post("/users", async (req, res) => {
@@ -139,7 +137,7 @@ app.delete("/users/:userId/basket/:productId", (req, res) => {
 app.patch("/users/:id/basket/:productId", (req, res) => {
   const users = getFileData();
   const { id, productId } = req.params;
-  const { quantity } = req.body; 
+  const { quantity } = req.body;
 
   const user = users.find((u) => u.id === id);
   if (!user) return res.status(404).send("User not found");
@@ -171,7 +169,7 @@ app.delete("/users/:id/basket", (req, res) => {
 });
 
 // --- PRODUCT ROUTES ---
-app.get("/products", (req, res) => {
+app.get("/product", (req, res) => {
   const products = getProductsFileData();
   res.json(products);
 });
