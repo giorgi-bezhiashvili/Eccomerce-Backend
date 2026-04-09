@@ -20,7 +20,7 @@ Content-Type: application/json
 GET http://localhost:3000/product
 
 ### Add item to basket
-POST http://localhost:3000/users/1775726012616/basket
+POST http://localhost:3000/users/1775728455024/basket
 Content-Type: application/json
 
 {
@@ -31,26 +31,19 @@ Content-Type: application/json
 }
 
 ### Get basket
-GET http://localhost:3000/users/1775726012616/basket
+GET http://localhost:3000/users/1775728455024/basket
 
-### Update basket item quantity (user 1775726012616)
-PATCH http://localhost:3000/users/1775726012616/basket/prod_001
+### Update basket item quantity (user 1775728455024)
+PATCH http://localhost:3000/users/1775728455024/basket/prod_001
 Content-Type: application/json
 
 {
     "quantity": 5
 }
 
-### Update basket item quantity (user 1775726012616)
-PATCH http://localhost:3000/users/1775726012616/basket/prod_001
-Content-Type: application/json
 
-{
-    "quantity": 5
-}
+### Delete basket item (user 1775728455024)
+DELETE http://localhost:3000/users/1775728455024/basket/prod_001
 
-### Delete basket item (user 1775726012616)
-DELETE http://localhost:3000/users/1775726012616/basket/prod_001
-
-### Clear entire basket (user 1775726012616)
-DELETE http://localhost:3000/users/1775726012616/basket
+### Clear entire basket (user 1775728455024)
+DELETE http://localhost:3000/users/1775728455024/basket
