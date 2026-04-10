@@ -19,5 +19,5 @@ app.use("/product", productRoutes);
 
 
 https.createServer(options, app).listen(3000, () => {
-  console.log(`Secure server spinning on https://localhost:3000`);
+  console.log(`HTTPS server spinning on https://localhost:3000`);
 });
