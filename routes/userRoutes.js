@@ -2,7 +2,6 @@ const express = require("express");
 const router = express.Router();
 const fs = require("fs");
 const bcrypt = require("bcrypt");
-
 const DATA_FILE = "./data.json";
 
 const getFileData = () => {
