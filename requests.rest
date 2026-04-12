@@ -1,49 +1,86 @@
-### Register a new user
-POST https://localhost:3000/users
+@baseUrl = https://localhost:3000/users
+@userId = 1775997725192
+# After login, paste your accessToken below
+@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjE3NzU5OTc3MjUxOTIiLCJ1c2VyTiI6ImpvaG5fZG9lIiwiaWF0IjoxNzc1OTk3NzQxLCJleHAiOjE3NzYwODQxNDF9.to1HfrPs5-R1aPZJDGiCUAads9dql_S2aoqOfAOY3tk
+
+### 1. Register a new user
+POST {{baseUrl}}/
 Content-Type: application/json
 
 {
-    "userN": "john_doe",
-    "password": "secretpassword123"
+  "userN": "john_doe",
+  "password": "password123"
 }
 
-### Login
-POST https://localhost:3000/users/login
+### 2. Login WITHOUT Remember Me
+POST {{baseUrl}}/login
 Content-Type: application/json
 
 {
-    "userN": "john_doe",
-z
+  "userN": "john_doe",
+  "password": "password123",
+  "rememberMe": false
 }
 
-### Get all products
-GET https://localhost:3000/product
-
-### Add item to basket
-POST https://localhost:3000/users/1775807324527/basket
+### 3. Login WITH Remember Me (issues refresh token cookie)
+POST {{baseUrl}}/login
 Content-Type: application/json
 
 {
-    "id": "prod_001",
-    "name": "Mechanical Keyboard",
-    "price": 89.99,
-    "quantity": 1
+  "userN": "john_doe",
+  "password": "password123",
+  "rememberMe": true
 }
 
-### Get basket
-GET https://localhost:3000/users/1775807324527/basket
+### 4. Refresh access token (uses httpOnly cookie automatically)
+POST {{baseUrl}}/refresh
+Content-Type: application/json
 
-### Update basket item quantity (user 1775807324527)
-PATCH https://localhost:3000/users/1775807324527/basket/prod_001
+### 5. Get basket (paste accessToken from login response above into @accessToken)
+GET {{baseUrl}}/{{userId}}/basket
+Authorization: Bearer {{accessToken}}
+
+### 6. Add item to basket
+POST {{baseUrl}}/{{userId}}/basket
+Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 
 {
-    "quantity": 5
+  "id": "product_001",
+  "name": "Wireless Headphones",
+  "price": 59.99,
+  "quantity": 1
 }
 
+### 7. Add another item
+POST {{baseUrl}}/{{userId}}/basket
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
 
-### Delete basket item (user 1775807324527)
-DELETE https://localhost:3000/users/1775807324527/basket/prod_001
+{
+  "id": "product_002",
+  "name": "Mechanical Keyboard",
+  "price": 89.99,
+  "quantity": 2
+}
 
-### Clear entire basket (user 1775807324527)
-DELETE https://localhost:3000/users/1775807324527/basket
+### 8. Update item quantity
+PATCH {{baseUrl}}/{{userId}}/basket/product_001
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "quantity": 3
+}
+
+### 9. Remove one item from basket
+DELETE {{baseUrl}}/{{userId}}/basket/product_001
+Authorization: Bearer {{accessToken}}
+
+### 10. Clear entire basket
+DELETE {{baseUrl}}/{{userId}}/basket
+Authorization: Bearer {{accessToken}}
+
+### 11. Logout (clears refresh token cookie + invalidates server-side)
+POST {{baseUrl}}/logout
+Content-Type: application/json

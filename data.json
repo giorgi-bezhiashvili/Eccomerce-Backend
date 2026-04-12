@@ -1,9 +1,9 @@
 [
   {
-    "id": "1775807324527",
+    "id": "1775997725192",
     "userN": "john_doe",
-    "password": "$2b$10$ufsp.9TJy6vGoOkjHKfyyO3xXwPLfeqHieFG2/6fYpXnhdrq4CIqm",
-    "token": "",
-    "basket": []
+    "password": "$2b$10$kki2N6VdPeHWUz2e1qluVu7V/x3A4TO3HoWCAsmfZEFeB.ED8zkNq",
+    "basket": [],
+    "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjE3NzU5OTc3MjUxOTIiLCJ1c2VyTiI6ImpvaG5fZG9lIiwiaWF0IjoxNzc1OTk3NzY0LCJleHAiOjE3Nzg1ODk3NjR9.IlT3drHmM0Ewynbco5WgFM2FG0EPEoF8c2oqRxGi4Jo"
   }
 ]
