@@ -45,13 +45,17 @@ function authenticateToken(req, res, next) {
 // Register
 router.post("/", async (req, res) => {
   try {
-    const { userN, password, basket } = req.body;
+    const { userN, password, basket , email} = req.body;
     if (!userN || !password)
       return res.status(400).send("Username and password are required");
 
     const users = getFileData();
     if (users.find((u) => u.userN === userN))
-      return res.status(400).send("User already exists");
+      return res.status(400).send("User already exists")
+    if(users.find((u) => u.email === email)){
+      return res.status(400).send("User already exists")
+
+    }
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = {
@@ -59,6 +63,7 @@ router.post("/", async (req, res) => {
       userN,
       password: hashedPassword,
       basket: basket || [],
+      email:email
     };
 
     users.push(newUser);
@@ -75,9 +80,14 @@ router.post("/", async (req, res) => {
 // Login
 router.post("/login", async (req, res) => {
   try {
-    const { userN, password, rememberMe } = req.body; 
+    const { userN, password, rememberMe, email } = req.body;
     const users = getFileData();
-    const user = users.find((u) => u.userN === userN);
+
+    // Find user by username OR email — whichever was provided
+    const user = users.find((u) =>
+      userN ? u.userN === userN : u.email === email
+    );
+
     if (!user) return res.status(400).send("Invalid username or password");
 
     const isMatch = await bcrypt.compare(password, user.password);
@@ -93,7 +103,6 @@ router.post("/login", async (req, res) => {
       return res.json({ message: "Login successful", accessToken });
     }
 
-    // Only generate refresh token if rememberMe is true
     const refreshToken = jwt.sign(
       { id: user.id, userN: user.userN },
       process.env.REFRESH_TOKEN_SECRET,
@@ -105,10 +114,10 @@ router.post("/login", async (req, res) => {
     saveFileData(users);
 
     res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,   
-      secure: true,     
+      httpOnly: true,
+      secure: true,
       sameSite: "strict",
-      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days in ms
+      maxAge: 30 * 24 * 60 * 60 * 1000,
     });
 
     res.json({ message: "Login successful", accessToken });

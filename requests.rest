@@ -1,15 +1,15 @@
 @baseUrl = https://localhost:3000/users
-@userId = 1775997725192
-# After login, paste your accessToken below
-@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjE3NzU5OTc3MjUxOTIiLCJ1c2VyTiI6ImpvaG5fZG9lIiwiaWF0IjoxNzc1OTk3NzQxLCJleHAiOjE3NzYwODQxNDF9.to1HfrPs5-R1aPZJDGiCUAads9dql_S2aoqOfAOY3tk
+@userId = 1776150306467
 
+@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjE3NzYxNTAzMDY0NjciLCJ1c2VyTiI6ImpvaG5fZG9lMTIiLCJpYXQiOjE3NzYxNTA2NTMsImV4cCI6MTc3ODc0MjY1M30.k5Us5lm6JWsAfONkOXCPzlggbdRjXhfm5OC_fsuF9Jo
 ### 1. Register a new user
 POST {{baseUrl}}/
 Content-Type: application/json
 
 {
-  "userN": "john_doe",
-  "password": "password123"
+  "userN": "john_doe12",
+  "password": "password123",
+  "email":"giorgibezhi2ashvili9@gmail.com"
 }
 
 ### 2. Login WITHOUT Remember Me
@@ -17,26 +17,26 @@ POST {{baseUrl}}/login
 Content-Type: application/json
 
 {
-  "userN": "john_doe",
+  "email": "john_doe12",
   "password": "password123",
   "rememberMe": false
 }
 
-### 3. Login WITH Remember Me (issues refresh token cookie)
+### 3. Login WITH Remember Me 
 POST {{baseUrl}}/login
 Content-Type: application/json
 
 {
-  "userN": "john_doe",
+  "userN": "john_doe12",
   "password": "password123",
   "rememberMe": true
 }
 
-### 4. Refresh access token (uses httpOnly cookie automatically)
+### 4. Refresh access token 
 POST {{baseUrl}}/refresh
 Content-Type: application/json
 
-### 5. Get basket (paste accessToken from login response above into @accessToken)
+### 5. Get basket 
 GET {{baseUrl}}/{{userId}}/basket
 Authorization: Bearer {{accessToken}}
 
