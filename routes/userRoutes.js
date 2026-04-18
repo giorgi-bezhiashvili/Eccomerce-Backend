@@ -4,10 +4,24 @@ const router = express.Router();
 const fs = require("fs");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-
+const Joi = require('joi');
 const DATA_FILE = "./data.json";
 
-
+const signUpScema = Joi.object({
+  email: Joi.string().email().required(),
+  password: Joi.string().min(8).max(20).required(),
+  userN: Joi.string().alphanum(),
+  basket: Joi.array().optional()   
+});
+const loginSceme = Joi.object({
+  email: Joi.string().email().required(),
+  password: Joi.string().min(8).max(20).required(),
+  userN: Joi.string().alphanum(),
+  rememberMe: Joi.boolean().default(false)
+}).xor(`userN` , "email")
+const tokenSceme = Joi.object({
+  accessToken:Joi.string().required()
+})
 const getFileData = () => {
   try {
     return JSON.parse(fs.readFileSync(DATA_FILE, "utf8"));
@@ -44,17 +58,18 @@ function authenticateToken(req, res, next) {
 
 // Register
 router.post("/", async (req, res) => {
+  const {error,value} = signUpScema.validate(req.body)
+  if(error){
+    console.log(error);
+    return res.send("Invalid Request")
+  }
   try {
     const { userN, password, basket , email} = req.body;
-    if (!userN || !password)
-      return res.status(400).send("Username and password are required");
-
     const users = getFileData();
     if (users.find((u) => u.userN === userN))
       return res.status(400).send("User already exists")
     if(users.find((u) => u.email === email)){
       return res.status(400).send("User already exists")
-
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -79,6 +94,11 @@ router.post("/", async (req, res) => {
 
 // Login
 router.post("/login", async (req, res) => {
+  const {error,value} = loginSceme.validate(req.body)
+  if(error){
+    console.log(error)
+    return res.send(`Invalid request`)
+  }
   try {
     const { userN, password, rememberMe, email } = req.body;
     const users = getFileData();
@@ -127,6 +147,11 @@ router.post("/login", async (req, res) => {
   }
 });
 router.post("/refresh", (req, res) => {
+  const {error,value} = loginSceme.validate(req.cookies)
+  if(error){
+    console.log(error)
+    return res.send(`Invalid Request`)
+  }
   const token = req.cookies.refreshToken; 
   if (!token) return res.status(401).send("No refresh token");
 
@@ -147,6 +172,11 @@ router.post("/refresh", (req, res) => {
   });
 });
 router.post("/logout", (req, res) => {
+  const {error,value} = loginSceme.validate(req.cookies)
+  if(error){
+    console.log(error)
+    return res.send(`Invalid Request`)
+  }
   const token = req.cookies.refreshToken;
   if (token) {
     const users = getFileData();
